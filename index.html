@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#1f5a3d">
+<title>Arbeidsplan VHU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+/* Layout: kompakt topp, så ett stort planbrett (lag × dager) som scroller sidelengs i egen ramme; på mobil kort per lag med ukefaner. */
+:root{
+  --bg:#f5f7f4; --surface:#ffffff; --surface-2:#eef2ec; --line:#dfe5dc; --line-strong:#c9d3c5;
+  --fg:#1d2a22; --muted:#5f6d64; --faint:#8b978f;
+  --accent:#1f5a3d; --accent-soft:#e2eee6; --today:#f2b33d; --today-soft:#fff4dc;
+  --warn-bg:#fdf3e2; --warn-line:#efd9ae; --warn-fg:#7a5410;
+  --cell-s:62%; --cell-l:87%; --cell-fg-s:45%; --cell-fg-l:22%;
+  --absent-a:#eceeec; --absent-b:#e0e3e0;
+  --display:"Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body:"Public Sans", "Segoe UI", Roboto, Arial, sans-serif;
+  --shadow:0 1px 2px rgba(20,40,28,.06), 0 4px 18px rgba(20,40,28,.05);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111713; --surface:#18201b; --surface-2:#1f2923; --line:#2a352e; --line-strong:#38463d;
+  --fg:#e6ede8; --muted:#a2b0a7; --faint:#75847b;
+  --accent:#8fd3ad; --accent-soft:#1f3529; --today:#f2b33d; --today-soft:#2e2717;
+  --warn-bg:#2a2416; --warn-line:#4a3d1e; --warn-fg:#f0cf8e;
+  --cell-s:30%; --cell-l:25%; --cell-fg-s:55%; --cell-fg-l:88%;
+  --absent-a:#232b26; --absent-b:#1c231f;
+  --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111713; --surface:#18201b; --surface-2:#1f2923; --line:#2a352e; --line-strong:#38463d;
+  --fg:#e6ede8; --muted:#a2b0a7; --faint:#75847b;
+  --accent:#8fd3ad; --accent-soft:#1f3529; --today:#f2b33d; --today-soft:#2e2717;
+  --warn-bg:#2a2416; --warn-line:#4a3d1e; --warn-fg:#f0cf8e;
+  --cell-s:30%; --cell-l:25%; --cell-fg-s:55%; --cell-fg-l:88%;
+  --absent-a:#232b26; --absent-b:#1c231f;
+  --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1640px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+
+header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:46px;height:46px;border-radius:50%;border:2px solid var(--accent);display:grid;place-items:center;
+  font-family:var(--display);font-weight:700;color:var(--accent);font-size:16px;letter-spacing:-.02em}
+.brand b{display:block;font-family:var(--display);font-size:15px;letter-spacing:.02em}
+.brand small{display:block;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.readonly{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+
+.intro{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 6px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,4.4vw,46px);letter-spacing:-.03em;line-height:1.05;margin:0;text-wrap:balance}
+h1 span{color:var(--accent)}
+.lead{margin:8px 0 0;color:var(--muted);max-width:60ch}
+.source{display:flex;flex-direction:column;align-items:flex-end;gap:3px;font-size:12px;color:var(--muted);text-align:right}
+.source strong{color:var(--fg);font-weight:600}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#3aa56b;margin-right:6px;vertical-align:1px}
+.dot.stale{background:var(--today)}
+
+.board{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.range{display:flex;flex-direction:column;margin-right:auto}
+.range b{font-family:var(--display);font-size:24px;letter-spacing:-.02em;line-height:1.1}
+.range span{font-size:12px;color:var(--muted)}
+.search{position:relative;flex:1 1 260px;max-width:380px}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--faint)}
+input[type=search],select{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line-strong);border-radius:9px;height:38px}
+input[type=search]{width:100%;padding:0 12px 0 34px}
+select{padding:0 30px 0 10px;max-width:240px}
+input:focus-visible,select:focus-visible,button:focus-visible,label.switch:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+label.switch{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;border-radius:8px}
+label.switch input{accent-color:var(--accent);width:16px;height:16px}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 20px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted);background:var(--surface-2)}
+.legend i{display:inline-block;width:22px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.lg-tent{border:1.5px dashed var(--muted)}
+.lg-abs{background:repeating-linear-gradient(135deg,var(--absent-a) 0 4px,var(--absent-b) 4px 8px);border:1px solid var(--line-strong)}
+.lg-today{background:var(--today-soft);border:1.5px solid var(--today)}
+
+/* Brett */
+.scroller{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.grid{--name:230px;--day:minmax(92px,1fr);display:grid;
+  grid-template-columns:var(--name) repeat(5,var(--day)) 10px repeat(5,var(--day)) 10px repeat(5,var(--day));
+  min-width:1460px;font-variant-numeric:tabular-nums}
+.hcell{position:sticky;top:0;background:var(--surface-2);border-bottom:1px solid var(--line);padding:8px 6px;font-size:12px;color:var(--muted);text-align:center;z-index:2}
+.hweek{grid-row:1;text-align:left;padding:10px 10px 4px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--fg);border-bottom:none}
+.hweek span{font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted);margin-left:6px}
+.hday{grid-row:2}
+.hday b{color:var(--fg);font-weight:600}
+.hday.today{background:var(--today-soft);color:var(--fg);box-shadow:inset 0 -2px 0 var(--today)}
+.hname{grid-row:1/span 2;text-align:left;left:0;z-index:3;padding:12px 16px;display:flex;flex-direction:column;justify-content:center;gap:2px;border-right:1px solid var(--line)}
+.hname b{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg)}
+.gap{background:var(--surface-2);border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.name{position:sticky;left:0;z-index:1;background:var(--surface);border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  padding:10px 16px;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.name b{font-weight:600;font-size:14px;line-height:1.25}
+.name small{font-size:11px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-mine .name{background:var(--accent-soft)}
+.row-mine .name b::after{content:"Mitt lag";margin-left:8px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700;vertical-align:1px}
+.slot{border-bottom:1px solid var(--line);padding:5px 3px;min-height:60px;display:flex;position:relative}
+.todaybg{background:var(--today-soft);border-bottom:1px solid var(--line)}
+.empty{flex:1;display:grid;place-items:center;color:var(--faint);font-size:13px}
+.job{flex:1;border-radius:7px;padding:7px 9px;font-size:12.5px;font-weight:600;line-height:1.25;min-width:0;
+  background:hsl(var(--h) var(--cell-s) var(--cell-l));color:hsl(var(--h) var(--cell-fg-s) var(--cell-fg-l));
+  display:flex;flex-direction:column;justify-content:center;gap:2px;overflow-wrap:anywhere}
+.job.tent{outline:1.5px dashed hsl(var(--h) var(--cell-fg-s) var(--cell-fg-l) / .55);outline-offset:-3px}
+.job.tent em{font-style:normal;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;opacity:.75;font-weight:700}
+.job.abs{background:repeating-linear-gradient(135deg,var(--absent-a) 0 6px,var(--absent-b) 6px 12px);color:var(--muted);border:1px solid var(--line-strong)}
+.job .days{font-size:10.5px;font-weight:500;opacity:.75}
+.dim .job{opacity:.28}
+.hit .job{box-shadow:0 0 0 2px var(--accent)}
+.noresult{padding:40px 20px;text-align:center;color:var(--muted)}
+
+/* Mobil */
+.mobile{display:none}
+.tabs{display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line-strong);background:var(--surface);color:var(--fg);border-radius:999px;padding:7px 14px;white-space:nowrap;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.cards{display:flex;flex-direction:column}
+.card{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.card.row-mine{background:var(--accent-soft)}
+.card h3{margin:0;font-size:15px;font-weight:700}
+.card h3 small{display:block;font-weight:400;font-size:11.5px;color:var(--faint)}
+.mrow{display:grid;grid-template-columns:62px 1fr;gap:8px;align-items:stretch}
+.mrow .when{font-size:12px;color:var(--muted);padding-top:7px;font-variant-numeric:tabular-nums}
+.mrow .when.today{color:var(--fg);font-weight:700}
+.mrow .job{padding:8px 10px;font-size:13.5px}
+.mrow .empty{justify-content:start;place-items:center start;padding:6px 0}
+
+footer{font-size:12px;color:var(--faint);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+.error{padding:30px 20px;color:var(--warn-fg);background:var(--warn-bg);border-top:1px solid var(--warn-line)}
+
+@media (max-width:760px){
+  .desk{display:none}.mobile{display:block}
+  .source{align-items:flex-start;text-align:left}
+  .bar{padding:14px 16px}
+  .search{max-width:none;flex-basis:100%}
+  select{flex:1;max-width:none}
+  .legend{padding:10px 16px}
+  .readonly span{display:none}
+}
+@media (prefers-reduced-motion:no-preference){.job{transition:opacity .15s}}
+.lock{max-width:420px;margin:8vh auto 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:28px 24px;display:flex;flex-direction:column;gap:14px}
+.lock h2{font-family:var(--display);font-size:24px;letter-spacing:-.02em;margin:0}
+.lock p{margin:0;color:var(--muted)}
+.lock input{font:inherit;font-size:16px;color:var(--fg);background:var(--surface);border:1px solid var(--line-strong);border-radius:9px;height:46px;padding:0 14px}
+.lock button{font:inherit;font-weight:600;font-size:15px;height:46px;border:0;border-radius:9px;background:var(--accent);color:var(--surface);cursor:pointer}
+.lock .msg{color:#b3261e;font-size:13px;min-height:1em}
+.logout{font:inherit;font-size:12px;background:none;border:0;color:var(--faint);text-decoration:underline;cursor:pointer;padding:0}
+</style>
+</head>
+<body>
+
+<form class="lock" id="lock" hidden>
+  <div class="brand"><div class="mark" aria-hidden="true">V&amp;H</div><div><b>VÅGEN &amp; HANSEN</b><small>Utemiljø AS</small></div></div>
+  <h2>Arbeidsplan</h2>
+  <p>Skriv inn koden du har fått fra kontoret. Telefonen husker den til neste gang.</p>
+  <input id="code" type="password" autocomplete="current-password" placeholder="Kode" aria-label="Kode" required>
+  <button type="submit" id="unlock">Åpne planen</button>
+  <div class="msg" id="lockmsg" role="alert"></div>
+</form>
+<div class="wrap" id="app" hidden>
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">V&amp;H</div>
+      <div><b>VÅGEN &amp; HANSEN</b><small>Utemiljø AS</small></div>
+    </div>
+    <div class="readonly">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      <span>Kun visning · endringer gjøres i Excel</span>
+    </div>
+  </header>
+
+  <section class="intro">
+    <div>
+      <p class="eyebrow">Arbeidsplan for formenn</p>
+      <h1>De neste tre ukene<span>.</span></h1>
+      <p class="lead">Finn laget ditt og se hvor dere skal jobbe. Planen hentes fra fremdriftsplanen i Excel.</p>
+    </div>
+    <div class="source" id="source"></div>
+  </section>
+
+  <section class="board" aria-label="Arbeidsplan">
+    <div class="bar">
+      <div class="range"><b id="rangeTitle">Uke –</b><span id="rangeDates"></span></div>
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" id="q" placeholder="Søk etter navn eller arbeidssted" aria-label="Søk etter navn eller arbeidssted" autocomplete="off">
+      </div>
+      <select id="mine" aria-label="Velg mitt lag"><option value="">Velg mitt lag</option></select>
+      <label class="switch"><input type="checkbox" id="onlyMine"> Bare mitt lag</label>
+    </div>
+    <div class="legend">
+      <span><i class="lg-today"></i>I dag</span>
+      <span><i class="lg-tent"></i>Foreløpig (spørsmålstegn i Excel)</span>
+      <span><i class="lg-abs"></i>Kurs, fri eller syk</span>
+      <span>— Ikke planlagt</span>
+    </div>
+    <div class="desk scroller"><div class="grid" id="grid"></div></div>
+    <div class="mobile">
+      <div class="tabs" id="tabs" role="tablist"></div>
+      <div class="cards" id="cards"></div>
+    </div>
+    <div class="noresult" id="noresult" hidden>Ingen lag eller arbeidssteder passer søket.</div>
+    <div class="error" id="err" hidden></div>
+  </section>
+
+  <footer>
+    <span>Vågen &amp; Hansen Utemiljø AS · Fremdriftsplan</span>
+    <span>Oppdateres automatisk hver hverdag kl. 06 og 13 fra Excel-filen. <button type="button" class="logout" id="logout">Glem koden på denne enheten</button></span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const HUES=[198,8,145,45,275,24,90,330,175,220,58,300,120,250];
+  const DAY=["Man","Tir","Ons","Tor","Fre"];
+  const MON=["jan.","feb.","mars","apr.","mai","juni","juli","aug.","sep.","okt.","nov.","des."];
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const pd=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+  const fmt=d=>d.getDate()+". "+MON[d.getMonth()];
+  const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const todayIso=iso(new Date());
+  const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+  let data=null, mobWeek=0;
+
+  // Slår sammen påfølgende dager med samme oppføring innen én uke
+  function spans(days){
+    const out=[];
+    for(let w=0;w<3;w++){
+      let cur=null;
+      for(let d=0;d<5;d++){
+        const e=days[w*5+d]||{};
+        const key=e.p?(e.p+"|"+(e.f||0)):"";
+        if(cur && key && cur.key===key && e.k){cur.len++;continue}
+        cur={key,e,w,d,len:1};out.push(cur);
+      }
+    }
+    return out;
+  }
+
+  function jobHtml(e,extra){
+    if(!e.p) return '<div class="empty" aria-label="Ikke planlagt">—</div>';
+    const cls="job"+(e.f?" tent":"")+(e.a?" abs":"");
+    return '<div class="'+cls+'" style="--h:'+HUES[e.c%HUES.length]+'">'+esc(e.p)+(extra||"")+(e.f?"<em>Foreløpig</em>":"")+'</div>';
+  }
+
+  function visibleRows(){
+    const q=$("q").value.trim().toLowerCase();
+    const mine=$("mine").value, only=$("onlyMine").checked && mine;
+    let rows=data.lag.map((l,i)=>({...l,i}));
+    if(only) rows=rows.filter(l=>l.navn===mine);
+    if(q) rows=rows.filter(l=>l.navn.toLowerCase().includes(q)||l.bil.toLowerCase().includes(q)||l.dager.some(d=>d.p&&d.p.toLowerCase().includes(q)));
+    if(mine && !only){const k=rows.findIndex(l=>l.navn===mine); if(k>0) rows.unshift(rows.splice(k,1)[0]);}
+    return {rows,q,mine};
+  }
+
+  function render(){
+    const {rows,q,mine}=visibleRows();
+    const hitCls=e=>!q?"":(e.p&&e.p.toLowerCase().includes(q)?" hit":"");
+    const nameHit=l=>q&&(l.navn.toLowerCase().includes(q)||l.bil.toLowerCase().includes(q));
+    // Skrivebord
+    const col=(w,d)=>2+w*6+d;
+    let h='<div class="hcell hname" style="grid-column:1"><b>Lag</b><small>'+data.lag.length+' lag</small></div>';
+    data.uker.forEach((u,w)=>{
+      const m=pd(u.mandag), f=new Date(m); f.setDate(f.getDate()+4);
+      h+='<div class="hcell hweek" style="grid-column:'+col(w,0)+'/span 5">Uke '+u.uke+'<span>'+fmt(m)+' – '+fmt(f)+'</span></div>';
+      if(w<2) h+='<div class="gap" style="grid-column:'+(col(w,5))+';grid-row:1/span '+(rows.length+2)+'"></div>';
+      for(let d=0;d<5;d++){const x=new Date(m);x.setDate(x.getDate()+d);const t=iso(x)===todayIso;
+        h+='<div class="hcell hday'+(t?" today":"")+'" style="grid-column:'+col(w,d)+'"><b>'+DAY[d]+'</b> '+x.getDate()+'.</div>';}
+    });
+    rows.forEach((l,r)=>{
+      const row=r+3, rc=(l.navn===mine?" row-mine":"");
+      h+='<div class="name'+rc+'" style="grid-column:1;grid-row:'+row+'"><b>'+esc(l.navn)+'</b>'+(l.bil?'<small>'+esc(l.bil)+'</small>':'')+'</div>';
+      l.dager.forEach((e,k)=>{if(e.d===todayIso)h+='<div class="todaybg" style="grid-column:'+col(Math.floor(k/5),k%5)+';grid-row:'+row+'"></div>'});
+      spans(l.dager).forEach(s=>{
+        const t=false;
+        const dim=q&&!nameHit(l)&&!hitCls(s.e)?" dim":"";
+        h+='<div class="slot'+(t?" today":"")+dim+hitCls(s.e)+(rc?" "+rc:"")+'" style="grid-column:'+col(s.w,s.d)+'/span '+s.len+';grid-row:'+row+'">'+jobHtml(s.e)+'</div>';
+      });
+    });
+    $("grid").innerHTML=h;
+    // Mobil
+    let tb="";
+    data.uker.forEach((u,w)=>{tb+='<button role="tab" id="tab'+w+'" aria-selected="'+(w===mobWeek)+'">Uke '+u.uke+'</button>'});
+    $("tabs").innerHTML=tb;
+    data.uker.forEach((u,w)=>{$("tab"+w).onclick=()=>{mobWeek=w;render()}});
+    let c="";
+    rows.forEach(l=>{
+      c+='<article class="card'+(l.navn===mine?" row-mine":"")+'"><h3>'+esc(l.navn)+(l.bil?'<small>'+esc(l.bil)+'</small>':'')+'</h3>';
+      spans(l.dager).filter(s=>s.w===mobWeek).forEach(s=>{
+        const a=pd(l.dager[s.w*5+s.d].d);
+        const dates=[];for(let i=0;i<s.len;i++){const x=new Date(a);x.setDate(x.getDate()+i);dates.push(iso(x))}
+        const t=dates.includes(todayIso);
+        const lbl=s.len===1?DAY[s.d]+" "+a.getDate()+".":DAY[s.d]+"–"+DAY[s.d+s.len-1];
+        c+='<div class="mrow'+hitCls(s.e)+'"><div class="when'+(t?" today":"")+'">'+lbl+'</div>'+jobHtml(s.e)+'</div>';
+      });
+      c+='</article>';
+    });
+    $("cards").innerHTML=c;
+    $("noresult").hidden=rows.length>0;
+  }
+
+  function setup(d){
+    data=d;
+    const f=pd(d.uker[0].mandag), l=pd(d.uker[2].mandag); l.setDate(l.getDate()+4);
+    $("rangeTitle").textContent="Uke "+d.uker[0].uke+"–"+d.uker[2].uke;
+    $("rangeDates").textContent=fmt(f)+" – "+fmt(l)+" "+l.getFullYear();
+    const gen=new Date(d.generert), src=d.kilde_endret?new Date(d.kilde_endret):null;
+    const t=x=>x.toLocaleString("nb-NO",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit",timeZone:"Europe/Oslo"});
+    const stale=(Date.now()-gen.getTime())>36*3600*1000;
+    $("source").innerHTML='<span><span class="dot'+(stale?" stale":"")+'"></span>Sist hentet <strong>'+t(gen)+'</strong></span>'+
+      (src?'<span>Excel sist endret '+t(src)+'</span>':'')+
+      (d.uker.some(u=>!u.funnet)?'<span>Noen uker mangler i Excel-arket</span>':'');
+    const sel=$("mine");
+    d.lag.forEach(x=>{const o=document.createElement("option");o.value=o.textContent=x.navn;sel.appendChild(o)});
+    const saved=store.get("vhu-mitt-lag");
+    if(saved && d.lag.some(x=>x.navn===saved)) sel.value=saved;
+    $("onlyMine").checked=store.get("vhu-bare-mitt")==="1" && !!sel.value;
+    const tw=d.uker.findIndex(u=>{const m=pd(u.mandag),e=new Date(m);e.setDate(e.getDate()+6);const n=pd(todayIso);return n>=m&&n<=e});
+    mobWeek=tw<0?0:tw;
+    sel.onchange=()=>{store.set("vhu-mitt-lag",sel.value);if(!sel.value)$("onlyMine").checked=false;render()};
+    $("onlyMine").onchange=()=>{if(!sel.value){$("onlyMine").checked=false;sel.focus();return}store.set("vhu-bare-mitt",$("onlyMine").checked?"1":"0");render()};
+    $("q").oninput=render;
+    render();
+  }
+
+  const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+  let enc=null;
+  async function decrypt(code){
+    const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(code.trim().toLowerCase()),"PBKDF2",false,["deriveKey"]);
+    const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b64(enc.salt),iterations:enc.iter,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
+    const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64(enc.iv)},key,b64(enc.data));
+    return JSON.parse(new TextDecoder().decode(pt));
+  }
+  async function tryOpen(code,fromForm){
+    try{
+      const d=await decrypt(code);
+      store.set("vhu-kode",code);
+      $("lock").hidden=true;$("app").hidden=false;setup(d);
+    }catch(e){
+      store.set("vhu-kode","");
+      $("lock").hidden=false;$("app").hidden=true;
+      $("lockmsg").textContent=fromForm?"Feil kode. Prøv igjen, eller spør kontoret om koden.":"Koden er endret. Skriv inn den nye koden.";
+      if(!fromForm && !code) $("lockmsg").textContent="";
+      $("code").focus();
+    }
+  }
+  $("lock").addEventListener("submit",e=>{e.preventDefault();$("lockmsg").textContent="";tryOpen($("code").value,true)});
+  $("logout").onclick=()=>{store.set("vhu-kode","");location.reload()};
+  fetch("plan.json?t="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()})
+    .then(j=>{enc=j;tryOpen(store.get("vhu-kode")||"",false)})
+    .catch(()=>{$("app").hidden=false;$("err").hidden=false;$("err").textContent="Klarte ikke å laste planen. Last siden på nytt om litt. Hvis feilen varer, si fra til kontoret."});
+})();
+</script>
+</body>
+</html>
